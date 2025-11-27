@@ -197,6 +197,8 @@
             </span>
         </div>
     </footer>
+<!-- SweetAlert2 -->
+
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -249,6 +251,45 @@
                 });
             });
     </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+// Fungsi cek pesanan baru pakai SweetAlert2
+function checkNewOrders() {
+    fetch('cek_pesanan_baru.php')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('notifPesanan');
+            if(badge){
+                if(data.new_order > 0){
+                    badge.textContent = data.new_order;
+                    badge.style.display = 'inline-block';
+
+                    // Notifikasi pakai SweetAlert2
+                    Swal.fire({
+                        title: 'Pesanan Baru!',
+                        text: `Ada ${data.new_order} pesanan baru.`,
+                        icon: 'info',
+                        timer: 3000, // otomatis hilang setelah 3 detik
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    });
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        })
+        .catch(err => console.error(err));
+}
+
+// Cek setiap 10 detik
+setInterval(checkNewOrders, 10000);
+
+// Cek pertama kali saat halaman dibuka
+checkNewOrders();
+</script>
+
+
 
     <!-- VENDOR JS -->
     <script src="theme-assets/vendors/js/vendors.min.js"></script>

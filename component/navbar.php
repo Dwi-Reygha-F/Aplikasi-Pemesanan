@@ -83,6 +83,7 @@ $current_page = basename($_SERVER['PHP_SELF']); // ambil nama file aktif (misal:
       </ul>
       <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
     </nav>
+    
 
     <?php if (isset($_SESSION['email'])): ?>
       <!-- Kalau sudah login -->

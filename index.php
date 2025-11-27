@@ -27,13 +27,48 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
-  <!-- =======================================================
-  * Template Name: Sailor
-  * Template URL: https://bootstrapmade.com/sailor-free-bootstrap-theme/
-  * Updated: Aug 07 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+
+
+  <style>
+    .card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    /* Animasi ketika muncul */
+.produk-item {
+  transition: all 0.3s ease-in-out;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.produk-item.hide {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  position: absolute;
+  visibility: hidden;
+}
+
+/* Tombol aktif */
+.filter-btn.active {
+  background: #c62828;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.filter-btn {
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+  </style>
+
+
 </head>
 
 <body class="index-page">
@@ -55,9 +90,9 @@
           </div>
         </div><!-- End Carousel Item -->
 
-       <!-- End Carousel Item -->
+        <!-- End Carousel Item -->
 
-       <!-- End Carousel Item -->
+        <!-- End Carousel Item -->
 
         <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
           <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
@@ -91,82 +126,46 @@
 
         // Ambil semua data produk
         $produkQuery = mysqli_query($koneksi, "SELECT * FROM data_barang");
-        
 
 
-         
+
+
         ?>
 
-        <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
+        <div class=" layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
 
           <!-- Filter Otomatis -->
-          <ul class="portfolio-filters isotope-filters" data-aos="fade-up" data-aos-delay="100">
-            <li data-filter="*" class="filter-active">All</li>
-            <?php while ($filter = mysqli_fetch_assoc($filterQuery)) : ?>
-              <?php
-              $filterClass = 'filter-' . strtolower(str_replace(' ', '', $filter['jenis_barang']));
-              ?>
-              <li data-filter=".<?php echo $filterClass; ?>"><?php echo $filter['jenis_barang']; ?></li>
-            <?php endwhile; ?>
-          </ul><!-- End Portfolio Filters -->
+         <ul class="portfolio-filters d-flex justify-content-center gap-3 mb-4">
+    <li class="filter-btn active" data-filter="all">All</li>
+    <?php while ($filter = mysqli_fetch_assoc($filterQuery)) : ?>
+        <?php $filterClass = strtolower(str_replace(' ', '', $filter['jenis_barang'])); ?>
+        <li class="filter-btn" data-filter="<?php echo $filterClass; ?>">
+            <?php echo $filter['jenis_barang']; ?>
+        </li>
+    <?php endwhile; ?>
+</ul>
+<!-- End Portfolio Filters -->
 
           <!-- Container Produk -->
-          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
+          <div class="row gy-4">
+    <?php while ($row = mysqli_fetch_assoc($produkQuery)) : ?>
+        <?php $filterClass = strtolower(str_replace(' ', '', $row['jenis_barang'])); ?>
 
-            <?php while ($row = mysqli_fetch_assoc($produkQuery)) : ?>
-              <?php
-              $filterClass = 'filter-' . strtolower(str_replace(' ', '', $row['jenis_barang']));
+        <div class="col-lg-4 col-md-6 produk-item" data-category="<?php echo $filterClass; ?>">
+            <div class="card border-0 shadow-sm text-center p-3">
+                <img src="img/<?php echo $row['gambar_produk']; ?>" class="img-fluid mb-3" style="height:250px;object-fit:cover;">
+                <h5><?php echo $row['nama_barang']; ?></h5>
+                <p class="text-muted">
+                    <?php echo $row['jenis_barang']; ?> - Rp<?php echo number_format($row['harga_barang']); ?>
+                </p>
+                <a href="detail_produk.php?id=<?php echo $row['id_barang']; ?>" class="btn btn-primary btn-sm">
+                    Pesan Produk
+                </a>
+            </div>
+        </div>
+    <?php endwhile; ?>
+</div>
 
-
-
-                  $produk_id = $row['id_barang'];
-
-                   $ratingQuery = mysqli_query($koneksi, "SELECT AVG(rating) as rataRating FROM rating WHERE produk_id = '$produk_id'");
-              $ratingData = mysqli_fetch_assoc($ratingQuery);
-              $rataRating = $ratingData && $ratingData['rataRating'] ? round($ratingData['rataRating'], 1) : 0;
-              $ratingBulat = round($rataRating);
-
-              // Biar tampilan bintangnya bulat (bisa 1–5)
-              $ratingBulat = round($rataRating);
-              ?>
-              <div class="col-lg-4 col-md-6 portfolio-item isotope-item <?php echo $filterClass; ?>">
-
-                <div class="card border-0 shadow-sm text-center p-3">
-                  <!-- Gambar Produk -->
-                  <img src="img/<?php echo $row['gambar_produk']; ?>"
-                    class="img-fluid rounded mx-auto d-block mb-3"
-                    alt="<?php echo $row['nama_barang']; ?>"
-                    style="max-height: 250px; object-fit: cover;">
-
-                  <!-- Penjelasan -->
-                  <h5 class="fw-bold mb-1"><?php echo $row['nama_barang']; ?></h5>
-                  <p class="mb-2 text-muted">
-                    <?php echo $row['jenis_barang']; ?> - Rp<?php echo number_format($row['harga_barang'], 0, ',', '.'); ?> / <?php echo $row['satuan']; ?>
-                  </p>
-
-                  <div class="mb-2 text-warning">
-                    <?php
-                    if ($rataRating > 0) {
-                      for ($i = 1; $i <= 5; $i++) {
-                        echo $i <= $ratingBulat ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star"></i>';
-                      }
-                      echo " <small class='text-muted'>($rataRating)</small>";
-                    } else {
-                      echo "<small class='text-muted'><i class='bi bi-star'>(0)</i></small>";
-                    }
-                    ?>
-                  </div>
-
-                  <!-- Tombol Zoom -->
-                  <a href="detail_produk.php?id=<?php echo $row['id_barang']; ?>"
-                    class="btn btn-sm btn-primary">
-                    <i class="bi bi-info-circle"></i> Pesan Produk
-                  </a>
-                </div>
-
-              </div><!-- End Portfolio Item -->
-            <?php endwhile; ?>
-          </div><!-- End Portfolio Container -->
         </div>
       </div>
     </section><!-- /Portfolio Section -->
@@ -175,12 +174,12 @@
 
   <footer id="footer" class="footer dark-background">
 
-    
+
 
     <div class="container copyright text-center mt-4">
       <p>© <span>Copyright</span> <strong class="px-1 sitename">Bimbob Printing</strong> <span>All Rights Reserved</span></p>
       <div class="credits">
-       
+
       </div>
     </div>
 
@@ -191,20 +190,52 @@
 
   <!-- Preloader -->
   <div id="preloader"></div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+
+  <script>
+ const buttons = document.querySelectorAll('.filter-btn');
+const items = document.querySelectorAll('.produk-item');
+
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+
+        // Active button
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        let filter = btn.getAttribute('data-filter');
+
+        items.forEach(item => {
+            let category = item.getAttribute('data-category');
+
+            if (filter === "all" || filter === category) {
+                item.classList.remove("hide");
+            } else {
+                item.classList.add("hide");
+            }
+        });
+    });
+});
+
+
+</script>
+
+
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/php-email-form/validate.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
-  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
   <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
+
+
 
 </body>
 

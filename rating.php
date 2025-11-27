@@ -27,13 +27,46 @@
   <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
 
-  <!-- =======================================================
-  * Template Name: Sailor
-  * Template URL: https://bootstrapmade.com/sailor-free-bootstrap-theme/
-  * Updated: Aug 07 2024 with Bootstrap v5.3.3
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
+  <style>
+.card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    /* Animasi ketika muncul */
+.produk-item {
+  transition: all 0.3s ease-in-out;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.produk-item.hide {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  position: absolute;
+  visibility: hidden;
+}
+
+/* Tombol aktif */
+.filter-btn.active {
+  background: #c62828;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.filter-btn {
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+  </style>
+
+ 
 </head>
 
 <body class="index-page">
@@ -65,19 +98,24 @@
         $produkQuery = mysqli_query($koneksi, "SELECT * FROM data_barang");
         ?>
 
-        <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
+        <div class="layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
 
-          <!-- Filter Otomatis -->
-          <ul class="portfolio-filters isotope-filters" data-aos="fade-up" data-aos-delay="100">
-            <li data-filter="*" class="filter-active">All</li>
-            <?php while ($filter = mysqli_fetch_assoc($filterQuery)) : ?>
-              <?php $filterClass = 'filter-' . strtolower(str_replace(' ', '', $filter['jenis_barang'])); ?>
-              <li data-filter=".<?php echo $filterClass; ?>"><?php echo $filter['jenis_barang']; ?></li>
-            <?php endwhile; ?>
-          </ul><!-- End Portfolio Filters -->
+            <!-- Filter Otomatis -->
+     <ul class="portfolio-filters d-flex justify-content-center gap-3 mb-4">
+    <li class="filter-btn active" data-filter="all">All</li>
+    <?php while ($filter = mysqli_fetch_assoc($filterQuery)) : ?>
+        <?php 
+        $clean = strtolower(str_replace(' ', '', $filter['jenis_barang'])); 
+        ?>
+        <li class="filter-btn" data-filter="<?php echo $clean; ?>">
+            <?php echo $filter['jenis_barang']; ?>
+        </li>
+    <?php endwhile; ?>
+</ul>
+
 
           <!-- Container Produk -->
-          <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
+           <div class="row gy-4" data-aos="fade-up" data-aos-delay="200">
 
             <?php while ($row = mysqli_fetch_assoc($produkQuery)) : ?>
               <?php
@@ -96,46 +134,41 @@
               $avgData = mysqli_fetch_assoc($avgQuery);
               $avgRating = round($avgData['avg_rating'], 1);
               ?>
-              <div class="col-lg-4 col-md-6 portfolio-item isotope-item <?php echo $filterClass; ?>">
+              <div class="col-lg-4 col-md-6 produk-item" data-category="<?php echo strtolower(str_replace(' ', '', $row['jenis_barang'])); ?>">
+    <div class="card border-0 shadow-sm text-center p-3">
+        <img src="img/<?php echo $row['gambar_produk']; ?>"
+            class="img-fluid rounded mx-auto d-block mb-3"
+            style="max-height: 250px; object-fit: cover;">
 
-                <div class="card border-0 shadow-sm text-center p-3">
-                  <!-- Gambar Produk -->
-                  <img src="img/<?php echo $row['gambar_produk']; ?>"
-                    class="img-fluid rounded mx-auto d-block mb-3"
-                    alt="<?php echo $row['nama_barang']; ?>"
-                    style="max-height: 250px; object-fit: cover;">
+        <h5 class="fw-bold mb-1"><?php echo $row['nama_barang']; ?></h5>
+        <p class="mb-1 text-muted">
+            <?php echo $row['jenis_barang']; ?> - Rp<?php echo number_format($row['harga_barang'], 0, ',', '.'); ?> / <?php echo $row['satuan']; ?>
+        </p>
 
-                  <!-- Penjelasan -->
-                  <h5 class="fw-bold mb-1"><?php echo $row['nama_barang']; ?></h5>
-                  <p class="mb-1 text-muted">
-                    <?php echo $row['jenis_barang']; ?> - Rp<?php echo number_format($row['harga_barang'], 0, ',', '.'); ?> / <?php echo $row['satuan']; ?>
-                  </p>
+        <p class="mb-2">
+            <i class="bi bi-star-fill text-warning"></i>
+            <strong><?php echo $avgRating ?: 0; ?></strong>/5
+        </p>
 
-                  <!-- Rata-rata rating -->
-                  <p class="mb-2">
-                    <i class="bi bi-star-fill text-warning"></i>
-                    <strong><?php echo $avgRating ?: 0; ?></strong>/5
-                  </p>
+        <?php if (!$user_id): ?>
+            <button class="btn btn-outline-secondary btn-sm" onclick="alert('Silakan login terlebih dahulu!')">
+                <i class="bi bi-star"></i> Beri Rating
+            </button>
+        <?php elseif ($sudahRating): ?>
+            <button class="btn btn-secondary btn-sm" disabled>
+                <i class="bi bi-star-fill text-warning"></i> Sudah Dirating
+            </button>
+        <?php else: ?>
+            <button class="btn btn-primary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#ratingModal"
+                data-id="<?php echo $produk_id; ?>">
+                <i class="bi bi-star"></i> Beri Rating
+            </button>
+        <?php endif; ?>
+    </div>
+</div>
 
-                  <!-- Tombol Rating -->
-                  <?php if (!$user_id): ?>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="alert('Silakan login terlebih dahulu!')">
-                      <i class="bi bi-star"></i> Beri Rating
-                    </button>
-                  <?php elseif ($sudahRating): ?>
-                    <button class="btn btn-secondary btn-sm" disabled>
-                      <i class="bi bi-star-fill text-warning"></i> Sudah Dirating
-                    </button>
-                  <?php else: ?>
-                    <button class="btn btn-primary btn-sm"
-                      data-bs-toggle="modal"
-                      data-bs-target="#ratingModal"
-                      data-id="<?php echo $produk_id; ?>">
-                      <i class="bi bi-star"></i> Beri Rating
-                    </button>
-                  <?php endif; ?>
-                </div>
-              </div><!-- End Portfolio Item -->
             <?php endwhile; ?>
           </div><!-- End Portfolio Container -->
         </div>
@@ -223,13 +256,39 @@
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
   <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
-  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/-layout/.pkgd.min.js"></script>
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
   <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
+ <script>
+const buttons = document.querySelectorAll('.filter-btn');
+const items = document.querySelectorAll('.produk-item');
+
+buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Active btn
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        let filter = btn.getAttribute('data-filter');
+
+        items.forEach(item => {
+            let category = item.getAttribute('data-category');
+
+            if (filter === "all" || filter === category) {
+                item.classList.remove("hide");
+            } else {
+                item.classList.add("hide");
+            }
+        });
+    });
+});
+
+</script>
+
 
 </body>
 

@@ -55,6 +55,18 @@
       box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     }
 
+    a {
+  color: var(--brand-red);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #9a1a1a;
+}
+
+
     .login-body{ padding: 1.5rem; }
 
     .form-control:focus{ box-shadow: none; border-color: #b71c1c; }
@@ -104,7 +116,7 @@
         <div class="text-center mt-3 small-note">
           Belum punya akun? <a href="register.php">Daftar sekarang</a>
         </div>
-        <div class="text-center mt-3 small-note"><a href="index.php"> <- Kembali</a></div>
+        <div class="text-center mt-3"><a href="index.php"> <- Kembali</a></div>
       </form>
     </section>
   </main>
